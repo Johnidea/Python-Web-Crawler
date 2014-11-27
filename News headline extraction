@@ -1,0 +1,90 @@
+# -*- coding: UTF-8 -*-
+import jieba
+import jieba.posseg as pseg
+import jieba.analyse
+import urllib
+import re
+from decimal import *
+
+
+for num in range(1004025,1004126):
+    data = urllib.urlopen("http://125.218.212.143:81/rmrb/read.php?tid="+str(num))
+    s = data.read()
+    regex = '<div class="tpc_content" id="read_tpc">(.+?)</div>'
+    pattern = re.compile(regex)
+    a = re.findall(pattern,s)
+    a = a[0].decode('gbk').encode('utf8')
+    data = a.replace('<br />','').replace('　　','').replace('    ','').replace('：','')
+    t = open("C:/Users/Wong/Desktop/Job/Information Retrieval/Project3/news.txt","a")
+    t.write(data)
+    t.write("\n")
+    t.write("\n")
+    data = data.replace('专栏','').replace('第3版','').replace('（附图片）','').replace('(文件·报告·回忆录)','').replace('(理论)','')
+    data = data.replace('(国际)','').replace('(周末)','').replace('(要闻)','').replace('(经济)','').replace('(政治·法律·社会)','')
+    data = data.replace('(农村经济)','').replace('(教育·科技·文化)','').replace('(参政议政)','').replace('(文学作品)','').replace('；','。')
+    data = data.replace('第4版','').replace('第1版','').replace('第2版','').replace('第5版','').replace('第6版','').replace('！','。').split('。')
+    scoredict = {}
+    p = 0
+    for line in data:
+      if p < 1 :
+        h = line
+        p+=1
+        
+    for line in data:    
+        sentence = pseg.cut(line)
+        linescore = 0
+        for w in sentence:
+              if w.flag == "nr":
+                  linescore += 0.7
+                  #print w.flag + "  Who"
+              if w.flag == "t":
+                  linescore += 1.2
+                  #print w.flag  + "  When"
+              if w.flag == "tg":
+                  linescore += 1.1
+                  #print w.flag  + "  When"
+              if w.flag == "ns":
+                  linescore += 0.8
+                  #print w.flag + "  Where"
+              if w.flag == "n":
+                  linescore += 1.3
+                  #print w.flag + "  What"
+              if w.flag == "nt":
+                  linescore += 0.7
+                  #print w.flag + "  Who"
+              if w.flag == "v":
+                  linescore += 0.5
+                  #print w.flag + "  What"
+              if w.flag == "nz":
+                  linescore += 0.3
+                  #print w.flag + "  What"
+              if w.flag == "mq":
+                  linescore += 0.3
+                  #print w.flag + "  What
+              if w.flag == "q":
+                  linescore += 0.3
+                  #print w.flag + "  What
+              if w.flag == "x" or "w":
+                  newlinescore = len(line) - 1
+              if w == "１" or "２" or "３" or "４" or "５" or "６" or "７" or "８" or "９"or "０":  #What,When
+                  linescore += 0.25
+              alinescore =  Decimal(linescore) / Decimal(newlinescore)
+              scoredict[line] = alinescore
+      
+    
+    i = 0
+    b = '' 
+    for key, value in sorted(scoredict.items(), key=lambda (k,v): (v,k),reverse = True):
+        #print "%s: %s" % (key, value) + "\n"    
+        if i < 2 and len(key) > 30 and key != h and len(h + key)< 420:
+           b = ("%s" % (key))+"。"
+           i+=1
+        g = h +'。' + b  + "\n"
+    w =  "http://125.218.212.143:81/rmrb/read.php?tid="+str(num) + "\n"
+    r = open("C:\Users\Wong\Desktop\Job\Information Retrieval\Project3\headlines.txt","a")
+    r.write(g)
+    r.write(w)
+    r.write("\n")
+
+
+
