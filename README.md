@@ -1,5 +1,5 @@
 <center>Information Retrieval</center>
-==================
+
 <center><h1>Python Web Crawler</h1></center>
 
 First, you need to determine the starting URL for the program. The out-most for loop will go through all the assigned period. The while loop within it will crawl all the subpage link of a month and append the new URL to the urls and the visited list. New pages will be opened according to those two lists and output a href link. Then, the program will use that href link to open all the news pages and crawl the contents. As the content is encoded with gbk, the program will have to decode it first and then encode it with utf8 (otherwise the content will be unreadable). Finally, the program will write the content to the txt file.
